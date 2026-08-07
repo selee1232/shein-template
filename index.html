@@ -125,12 +125,12 @@ lines.forEach((line, i) => {
 }
 
 function save(){
-  const canvas = document.getElementById("canvas");
+    const canvas = document.getElementById("canvas");
 
-  canvas.toBlob(blob => {
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
-  }, "image/png");
+    canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
+    }, "image/png");
 }
 </script>
 
