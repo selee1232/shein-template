@@ -77,7 +77,34 @@ async function make(){
 
  x.fillStyle="#111";
  x.font="38px Arial";
- x.fillText(desc,540,400);
+ const words = desc.split(/\s+/);
+let lines = [];
+let line = "";
+
+for (const word of words) {
+  const testLine = line ? line + " " + word : word;
+
+  if (x.measureText(testLine).width > 840 && line) {
+    lines.push(line);
+    line = word;
+  } else {
+    line = testLine;
+  }
+}
+
+if (line) lines.push(line);
+
+lines = lines.slice(0, 3);
+
+x.textAlign = "center";
+x.textBaseline = "middle";
+
+const lineHeight = 48;
+const startY = 400 - ((lines.length - 1) * lineHeight) / 2;
+
+lines.forEach((line, i) => {
+  x.fillText(line, 540, startY + i * lineHeight);
+});
 
  const px=120,py=520,pw=840,ph=1000;
  const scale=Math.min(pw/product.width,ph/product.height);
@@ -97,22 +124,13 @@ async function make(){
  x.fillText(code,540,1730);
 }
 
-async function save(){
- const canvas=document.getElementById("canvas");
- canvas.toBlob(async blob=>{
-  const file=new File([blob],"design.png",{type:"image/png"});
+function save(){
+  const canvas = document.getElementById("canvas");
 
-  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-   try{
-    await navigator.share({files:[file]});
-   }catch(e){}
-  }else{
-   const a=document.createElement("a");
-   a.download="design.png";
-   a.href=URL.createObjectURL(blob);
-   a.click();
-  }
- },"image/png");
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+  }, "image/png");
 }
 </script>
 
