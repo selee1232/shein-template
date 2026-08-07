@@ -329,55 +329,25 @@ async function make(){
 
 
 function save(){
+  const canvas = document.getElementById("canvas");
 
-  const canvas =
-    document.getElementById("canvas");
-
-
-  canvas.toBlob(blob=>{
-
+  canvas.toBlob(blob => {
     if(!blob){
       alert("أنشئ التصميم أولاً");
       return;
     }
 
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "design.png";
 
-    const url =
-      URL.createObjectURL(blob);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
 
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 
-    /*
-      على الآيفون:
-      يفتح التصميم كصورة مستقلة.
-      بعدها اضغطي مطولاً على الصورة
-      واختاري حفظ في الصور.
-    */
-
-    const newWindow =
-      window.open(url,"_blank");
-
-
-    /*
-      إذا منع المتصفح فتح الصفحة،
-      يستخدم تنزيل الملف بدلاً منها.
-    */
-
-    if(!newWindow){
-
-      const a =
-        document.createElement("a");
-
-      a.href = url;
-      a.download = "design.png";
-
-      document.body.appendChild(a);
-
-      a.click();
-
-      a.remove();
-    }
-
-  },"image/png");
+  }, "image/png");
 }
 
 </script>
