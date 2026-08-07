@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مولد تصاميم</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f4f1ed;padding:20px;text-align:center}
+.box{max-width:500px;margin:auto;background:white;padding:20px;border-radius:18px}
+input,textarea,button{width:100%;margin:8px 0;padding:12px;box-sizing:border-box}
+textarea{height:130px}
+button{background:#000;color:#fff;border:0;border-radius:10px;font-size:18px}
+canvas{width:100%;margin-top:15px}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>مولد التصميم</h2>
+
+<input type="file" id="product" accept="image/*">
+
+<textarea id="content" placeholder="العنوان
+الوصف
+رقم القطعة"></textarea>
+
+<button onclick="make()">إنشاء التصميم</button>
+
+<canvas id="canvas" width="1080" height="1920"></canvas>
+
+<button onclick="save()">حفظ التصميم</button>
+</div>
+
+<script>
+const BG="59CB9608-56BC-4AF8-AD94-46BA64874CB8.png";
+
+function load(src){
+ return new Promise((ok,no)=>{
+  const i=new Image();
+  i.onload=()=>ok(i);
+  i.onerror=no;
+  i.src=src;
+ });
+}
+
+async function make(){
+ const file=document.getElementById("product").files[0];
+ if(!file){alert("اختر صورة المنتج");return;}
+
+ const lines=document.getElementById("content").value
+ .split("\n").map(x=>x.trim()).filter(Boolean);
+
+ if(lines.length<3){
+  alert("اكتب العنوان والوصف ورقم القطعة");
+  return;
+ }
+
+ const title=lines[0];
+ const code=lines[lines.length-1];
+ const desc=lines.slice(1,-1).join(" ");
+
+ const bg=await load(BG);
+ const product=await load(URL.createObjectURL(file));
+
+ const c=document.getElementById("canvas");
+ const x=c.getContext("2d");
+
+ x.clearRect(0,0,1080,1920);
+ x.drawImage(bg,0,0,1080,1920);
+
+ x.textAlign="center";
+ x.direction="rtl";
+
+ x.fillStyle="#e91e63";
+ x.font="bold 58px Arial";
+ x.fillText(title,540,300);
+
+ x.fillStyle="#111";
+ x.font="38px Arial";
+ x.fillText(desc,540,400);
+
+ const px=120,py=520,pw=840,ph=1000;
+ const scale=Math.min(pw/product.width,ph/product.height);
+ const w=product.width*scale;
+ const h=product.height*scale;
+ x.drawImage(product,px+(pw-w)/2,py+(ph-h)/2,w,h);
+
+ x.fillStyle="#000";
+ x.beginPath();
+ x.roundRect(375,1600,330,180,35);
+ x.fill();
+
+ x.fillStyle="#fff";
+ x.font="38px Arial";
+ x.fillText("رقم القطعة",540,1660);
+ x.font="bold 48px Arial";
+ x.fillText(code,540,1730);
+}
+
+function save(){
+ const a=document.createElement("a");
+ a.download="design.png";
+ a.href=document.getElementById("canvas").toDataURL("image/png");
+ a.click();
+}
+</script>
+
+</body>
+</html>
