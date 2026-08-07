@@ -97,11 +97,22 @@ async function make(){
  x.fillText(code,540,1730);
 }
 
-function save(){
- const a=document.createElement("a");
- a.download="design.png";
- a.href=document.getElementById("canvas").toDataURL("image/png");
- a.click();
+async function save(){
+ const canvas=document.getElementById("canvas");
+ canvas.toBlob(async blob=>{
+  const file=new File([blob],"design.png",{type:"image/png"});
+
+  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+   try{
+    await navigator.share({files:[file]});
+   }catch(e){}
+  }else{
+   const a=document.createElement("a");
+   a.download="design.png";
+   a.href=URL.createObjectURL(blob);
+   a.click();
+  }
+ },"image/png");
 }
 </script>
 
