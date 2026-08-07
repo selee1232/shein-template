@@ -328,58 +328,63 @@ async function make(){
 }
 
 
-function save(){
+async function save() {
 
-  const canvas =
-    document.getElementById("canvas");
+    const canvas = document.getElementById("canvas");
 
+    canvas.toBlob(async (blob) => {
 
-  canvas.toBlob(blob=>{
+        if (!blob) {
+            alert("أنشئ التصميم أولاً");
+            return;
+        }
 
-    if(!blob){
-      alert("أنشئ التصميم أولاً");
-      return;
-    }
+        const file = new File(
+            [blob],
+            "design.png",
+            { type: "image/png" }
+        );
 
+        // على الآيفون والجوال:
+        // افتح نافذة المشاركة مباشرة بدون فتح تبويب جديد
+        if (
+            navigator.share &&
+            navigator.canShare &&
+            navigator.canShare({ files: [file] })
+        ) {
+            try {
+                await navigator.share({
+                    files: [file]
+                });
 
-    const url =
-      URL.createObjectURL(blob);
+                return;
+            } catch (error) {
 
+                // إذا المستخدم أغلق نافذة المشاركة
+                // لا نفعل شيئاً
+                if (error.name === "AbortError") {
+                    return;
+                }
+            }
+        }
 
-    /*
-      على الآيفون:
-      يفتح التصميم كصورة مستقلة.
-      بعدها اضغطي مطولاً على الصورة
-      واختاري حفظ في الصور.
-    */
+        // حل بديل للأجهزة التي لا تدعم مشاركة الملفات
+        const url = URL.createObjectURL(blob);
 
-    const newWindow =
-      window.open(url,"_blank");
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "design.png";
 
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
 
-    /*
-      إذا منع المتصفح فتح الصفحة،
-      يستخدم تنزيل الملف بدلاً منها.
-    */
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+        }, 1000);
 
-    if(!newWindow){
-
-      const a =
-        document.createElement("a");
-
-      a.href = url;
-      a.download = "design.png";
-
-      document.body.appendChild(a);
-
-      a.click();
-
-      a.remove();
-    }
-
-  },"image/png");
+    }, "image/png");
 }
-
 </script>
 
 </body>
