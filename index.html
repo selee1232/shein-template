@@ -95,22 +95,27 @@ function drawPoster(d){
 }
 generateBtn.onclick=async()=>{try{statusEl.textContent='';if(!bgReady)throw Error('انتظر تحميل الخلفية');const f=productInput.files[0];if(!f)throw Error('اختر صورة المنتج');const d=parseText(contentInput.value);productImage=await loadFileImage(f);drawPoster(d);downloadBtn.disabled=false;statusEl.textContent='تم إنشاء التصميم'}catch(e){statusEl.textContent=e.message||'حدث خطأ'}};
 downloadBtn.onclick = () => {
-  canvas.toBlob((blob) => {
+  canvas.toBlob(async (blob) => {
     if (!blob) return;
 
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const file = new File(
+      [blob],
+      'shineme-product.png',
+      { type: 'image/png' }
+    );
 
-    a.href = url;
-    a.download = 'shineme-product.png';
-
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 1000);
+    if (navigator.share && navigator.canShare &&
+        navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file]
+        });
+      } catch (err) {
+        // إذا أغلق المستخدم قائمة المشاركة لا يحدث شيء
+      }
+    } else {
+      alert('المشاركة غير مدعومة في هذا المتصفح');
+    }
   }, 'image/png');
 };
 </script></body></html>
